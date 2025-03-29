@@ -1,0 +1,56 @@
+name: seller_center
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^3.12.1
+  supabase_flutter: ^2.8.4
+  google_fonts: ^6.2.1
+  provider: ^6.1.2
+  cloud_firestore: ^5.6.5
+  carousel_slider: ^5.0.0
+  iconsax: ^0.0.8
+  intl: ^0.20.2
+  flutter_markdown: ^0.7.6+2
+  curved_navigation_bar: ^1.0.6
+  font_awesome_flutter: ^10.8.0
+  image_picker: ^1.1.2
+  uuid: ^4.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - Assets/Carousel/carousel1.jpg
+    - Assets/Carousel/carousel2.jpg
+    - Assets/Carousel/carousel3.jpg
+    - Assets/Carousel/carousel4.jpg
+    - Assets/Carousel/carousel5.jpg
+    - Assets/Carousel/carousel6.jpg
+    - Assets/Carousel/carousel7.jpg
+    - Assets/Carousel/carousel8.jpg
+    - Assets/Carousel/carousel9.jpg
+    - Assets/Categories/Clothing.jpeg
+    - Assets/Categories/Cosmetics.jpeg
+    - Assets/Categories/Electronic Accessories.jpeg
+    - Assets/Categories/Household Products.jpeg
+    - Assets/Categories/Female Footwear.jpeg
+    - Assets/Categories/Male Footwear.jpeg
+    - Assets/Categories/Female Accessories.jpeg
+    - Assets/Categories/Male Accessories.jpeg
+    - Assets/Categories/Men Clothing.jpeg
+    - Assets/Categories/Women Clothing.jpeg
+    - Assets/Categories/Smoke.jpeg
+    - Assets/Categories/Thrift Store.jpeg
+    - Assets/Categories/Furniture.jpeg
