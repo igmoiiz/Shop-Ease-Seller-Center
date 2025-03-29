@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
+
 import 'dart:developer';
 
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -26,6 +28,7 @@ class HomePage extends StatelessWidget {
       builder: (context, bottomNav, child) {
         final size = MediaQuery.sizeOf(context);
         return Scaffold(
+          backgroundColor: Colors.grey.shade100,
           drawer: Drawer(
             backgroundColor: Colors.grey.shade100,
             child: Column(
@@ -39,7 +42,7 @@ class HomePage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          "Shop Ease",
+                          "Seller Ease",
                           style: TextStyle(
                             color: Colors.black,
                             letterSpacing: 2,
@@ -161,7 +164,7 @@ class HomePage extends StatelessWidget {
                 ),
                 SizedBox(width: 10),
                 Text(
-                  "Shop Ease",
+                  "Seller Ease",
                   style: TextStyle(
                     fontFamily: GoogleFonts.lobsterTwo().fontFamily,
                     color: Colors.yellow.shade800,

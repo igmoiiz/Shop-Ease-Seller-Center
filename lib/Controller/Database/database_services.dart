@@ -28,6 +28,11 @@ class DatabaseServices extends ChangeNotifier {
     notifyListeners();
   }
 
+  set image(final value) {
+    _image = value;
+    notifyListeners();
+  }
+
   //  Method to pick an image from the gallery
   Future<void> pickImageFromGallery(BuildContext context) async {
     final snackBar = ScaffoldMessenger.of(context);
@@ -65,7 +70,7 @@ class DatabaseServices extends ChangeNotifier {
     TextEditingController titleController,
     TextEditingController descriptionController,
     TextEditingController priceController,
-    String brand,
+    TextEditingController brandNameController,
     String category,
   ) async {
     final snackBar = ScaffoldMessenger.of(context);
@@ -88,7 +93,7 @@ class DatabaseServices extends ChangeNotifier {
       if (descriptionController.text.isEmpty ||
           titleController.text.isEmpty ||
           priceController.text.isEmpty ||
-          brand.isEmpty ||
+          brandNameController.text.isEmpty ||
           category.isEmpty) {
         snackBar.showSnackBar(
           SnackBar(
@@ -122,7 +127,7 @@ class DatabaseServices extends ChangeNotifier {
         "title": titleController.text.trim(),
         "description": descriptionController.text.trim(),
         "price": priceController.text.trim(),
-        "brand": brand.trim(),
+        "brand": brandNameController.text.trim(),
         "category": category.trim(),
         "imageUrl": imageUrl,
         "createdAt": Timestamp.now(),
