@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously, unrelated_type_equality_checks
+
 import 'dart:developer';
 import 'dart:io';
 
@@ -5,153 +7,297 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:uuid/uuid.dart';
+import 'package:connectivity_plus/connectivity_plus.dart'; // Add this dependency
 
 class DatabaseServices extends ChangeNotifier {
   //  Variables
+  final ImagePicker picker = ImagePicker();
   File? _image;
-  bool _isLoading = false;
-  final ImagePicker _picker = ImagePicker();
-  //  Instance for Firebase Firestore
-  final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
-  //  Instance for Supabase Client
-  final SupabaseClient _supabase = Supabase.instance.client;
+  bool isLoading = false;
+  String imageUrl = "";
+  // Supabase Client
+  final _supabase = Supabase.instance.client;
+  //  Firebase Client
+  final _fireStore = FirebaseFirestore.instance;
+  // Connectivity checker
+  final Connectivity _connectivity = Connectivity();
+
   //  Getters
-  FirebaseFirestore get fireStore => _fireStore;
-  SupabaseClient get supabase => _supabase;
   File? get image => _image;
-  bool get isLoading => _isLoading;
-  ImagePicker get picker => _picker;
+  bool get loading => isLoading;
+  SupabaseClient get supabase => _supabase;
+  FirebaseFirestore get fireStore => _fireStore;
+
   //  Setters
-  set isLoading(bool value) {
-    _isLoading = value;
+  set image(File? value) {
+    _image = value;
     notifyListeners();
   }
 
-  set image(final value) {
-    _image = value;
-    notifyListeners();
+  // Check network connectivity
+  Future<bool> _checkConnectivity() async {
+    var connectivityResult = await _connectivity.checkConnectivity();
+    return connectivityResult != ConnectivityResult.none;
   }
 
   //  Method to pick an image from the gallery
   Future<void> pickImageFromGallery(BuildContext context) async {
     final snackBar = ScaffoldMessenger.of(context);
     try {
-      final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-
-      if (pickedImage == null) {
-        log("No image selected");
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+      );
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+        notifyListeners();
+      } else {
+        _image = null;
+        notifyListeners();
         snackBar.showSnackBar(
-          SnackBar(
+          const SnackBar(
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
             content: Text(
-              "Please Select a Image",
+              "No Image Selected",
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
+                letterSpacing: .5,
               ),
             ),
           ),
         );
-        return;
       }
-
-      _image = File(pickedImage.path);
-      notifyListeners();
     } catch (error) {
-      log(error.toString());
+      log("Error picking image: ${error.toString()}");
+      rethrow;
     }
   }
 
-  //  Method to Post Data to Database
-  Future<void> postData(
+  // Upload image to Supabase with retry mechanism
+  Future<String?> _uploadImageToSupabase(
+    String fileName,
+    final imageBytes,
     BuildContext context,
+  ) async {
+    final snackBar = ScaffoldMessenger.of(context);
+
+    // Check connectivity first
+    bool isConnected = await _checkConnectivity();
+    if (!isConnected) {
+      snackBar.showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          content: Text(
+            "No internet connection. Please check your network settings.",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              letterSpacing: .5,
+            ),
+          ),
+        ),
+      );
+      return null;
+    }
+
+    // Try up to 3 times
+    for (int attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await _supabase.storage
+            .from("products")
+            .uploadBinary(fileName, imageBytes);
+
+        // Get public URL
+        String url = _supabase.storage.from('products').getPublicUrl(fileName);
+        return url;
+      } catch (error) {
+        log("Upload attempt $attempt failed: ${error.toString()}");
+
+        // On last attempt, show error to user
+        if (attempt == 3) {
+          snackBar.showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              content: Text(
+                "Failed to upload image. Error: ${error.toString()}",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: .5,
+                ),
+              ),
+            ),
+          );
+          return null;
+        }
+
+        // Wait before retry
+        await Future.delayed(Duration(seconds: 2 * attempt));
+      }
+    }
+    return null;
+  }
+
+  //  Method to upload Data to Database
+  Future<bool> uploadData(
     TextEditingController titleController,
     TextEditingController descriptionController,
     TextEditingController priceController,
     TextEditingController brandNameController,
     String category,
+    BuildContext context,
   ) async {
     final snackBar = ScaffoldMessenger.of(context);
-    try {
-      isLoading = true;
-      if (_image == null) {
-        snackBar.showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            content: Text(
-              "Please Select a Image",
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        );
-        return;
-      }
 
-      if (descriptionController.text.isEmpty ||
-          titleController.text.isEmpty ||
-          priceController.text.isEmpty ||
-          brandNameController.text.isEmpty ||
-          category.isEmpty) {
-        snackBar.showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-            content: Text(
-              "Insufficient Information about Product. Please fill all the fields.",
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        );
-        return;
-      }
-
-      //  Setting Product ID and File Name
-      String productId = Uuid().v4();
-      String fileName = "$productId.jpg";
-
-      //  Reading Image as Bytes
-      final bytes = _image!.readAsBytesSync();
-
-      //  Uploading Image to Storage
-      await _supabase.storage.from('products').uploadBinary(fileName, bytes);
-
-      //  Getting Image URL
-      final imageUrl = supabase.storage.from('products').getPublicUrl(fileName);
-
-      //  Post Product Data to Firestore database
-      await _fireStore.collection(category).doc(productId).set({
-        "productId": productId,
-        "title": titleController.text.trim(),
-        "description": descriptionController.text.trim(),
-        "price": priceController.text.trim(),
-        "brand": brandNameController.text.trim(),
-        "category": category.trim(),
-        "imageUrl": imageUrl,
-        "createdAt": Timestamp.now(),
-      });
-
-      //  Resetting the Text Controllers
-      titleController.clear();
-      descriptionController.clear();
-      priceController.clear();
-      _image = null;
-      isLoading = false;
-      notifyListeners();
+    // Validation check before setting loading state
+    if (_image == null ||
+        titleController.text.isEmpty ||
+        descriptionController.text.isEmpty ||
+        priceController.text.isEmpty ||
+        brandNameController.text.isEmpty ||
+        category == 'Select Category') {
       snackBar.showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.green,
+        const SnackBar(
+          backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
           content: Text(
-            "Product Added Successfully",
-            style: TextStyle(color: Colors.white),
+            "Please fill all the fields and select an image",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              letterSpacing: .5,
+            ),
           ),
         ),
       );
+      return false;
+    }
+
+    try {
+      isLoading = true;
+      notifyListeners();
+
+      // Check network connectivity
+      bool isConnected = await _checkConnectivity();
+      if (!isConnected) {
+        isLoading = false;
+        notifyListeners();
+        snackBar.showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            content: Text(
+              "No internet connection. Please check your network settings.",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: .5,
+              ),
+            ),
+          ),
+        );
+        return false;
+      }
+
+      // Generating fileName, productID and Converting image data to bytes
+      String productId = DateTime.now().millisecondsSinceEpoch.toString();
+      String fileName = "product_$productId.jpg";
+      final imageBytes = await _image!.readAsBytes();
+
+      // Upload image and get URL
+      String? uploadedImageUrl = await _uploadImageToSupabase(
+        fileName,
+        imageBytes,
+        context,
+      );
+
+      // If image upload failed, stop the process
+      if (uploadedImageUrl == null) {
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      imageUrl = uploadedImageUrl;
+
+      // Upload data to Firestore
+      try {
+        await fireStore.collection(category).doc(productId).set({
+          "title": titleController.text,
+          "description": descriptionController.text,
+          "price": double.parse(priceController.text),
+          "brandName": brandNameController.text,
+          "image": imageUrl,
+          "category": category,
+          "productId": productId,
+          "createdAt": DateTime.now(),
+        });
+
+        // Clear form data after successful upload
+        titleController.clear();
+        descriptionController.clear();
+        priceController.clear();
+        brandNameController.clear();
+        _image = null;
+
+        snackBar.showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            content: Text(
+              "Product Added Successfully",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: .5,
+              ),
+            ),
+          ),
+        );
+
+        return true;
+      } catch (error) {
+        log("Error While Uploading Data to Firestore", error: error.toString());
+        snackBar.showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            content: Text(
+              "Failed to save product data: ${error.toString()}",
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: .5,
+              ),
+            ),
+          ),
+        );
+        return false;
+      }
     } catch (error) {
-      log(error.toString());
+      log("Error Occurred in Backend", error: error);
+      snackBar.showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          content: Text(
+            "An unexpected error occurred: ${error.toString()}",
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              letterSpacing: .5,
+            ),
+          ),
+        ),
+      );
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 }

@@ -186,7 +186,15 @@ class _UploadPageState extends State<UploadPage> with TickerProviderStateMixin {
                       return Transform.scale(scale: value, child: child);
                     },
                     child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () {
+                        // Clear form fields after successful upload
+                        Navigator.pop(context);
+
+                        // Reset the selectedCategory to default
+                        setState(() {
+                          _selectedCategory = 'Select Category';
+                        });
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.yellow.shade800,
                         foregroundColor: Colors.white,
@@ -792,43 +800,41 @@ class _UploadPageState extends State<UploadPage> with TickerProviderStateMixin {
         onPressed:
             databaseProvider.isLoading
                 ? null
-                : () {
+                : () async {
                   if (_formKey.currentState!.validate()) {
                     try {
-                      databaseProvider
-                          .postData(
-                            context,
-                            inputControllers.titleController,
-                            inputControllers.descriptionController,
-                            inputControllers.priceController,
-                            inputControllers.brandNameController,
-                            _selectedCategory,
-                          )
-                          .then((value) {
-                            _showSuccessAnimation();
-                          })
-                          .onError((error, stackTrace) {
-                            log(error.toString());
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                behavior: SnackBarBehavior.floating,
-                                content: Text(
-                                  'Error: ${error.toString()}',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          });
-                    } catch (e) {
-                      log(e.toString());
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error: ${e.toString()}'),
-                          backgroundColor: Colors.red,
-                        ),
+                      // Upload the product
+                      await databaseProvider.uploadData(
+                        inputControllers.titleController,
+                        inputControllers.descriptionController,
+                        inputControllers.priceController,
+                        inputControllers.brandNameController,
+                        _selectedCategory,
+                        context,
                       );
+
+                      // Only show success dialog if the widget is still mounted
+                      if (mounted) {
+                        _showSuccessAnimation();
+                      }
+                    } catch (e) {
+                      log('Error uploading product: ${e.toString()}');
+
+                      // Error is already shown by the database service
+                      // No need for additional error display here
                     }
+                  } else {
+                    // Form validation failed - scroll to show errors
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        behavior: SnackBarBehavior.floating,
+                        content: Text(
+                          'Please fix the errors in the form',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
                   }
                 },
         style: ElevatedButton.styleFrom(
