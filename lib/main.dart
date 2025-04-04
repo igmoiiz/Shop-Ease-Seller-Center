@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:seller_center/Controller/Analytics/analytics_controller.dart';
 import 'package:seller_center/Controller/Bottom%20Nav%20Bar/bottom_nav_bar_provider.dart';
 import 'package:seller_center/Controller/Database/database_services.dart';
 import 'package:seller_center/Controller/Interface/interface_controller.dart';
@@ -32,6 +33,9 @@ Future<void> main() async {
                     ),
                     ChangeNotifierProvider(
                       create: (context) => DatabaseServices(),
+                    ),
+                    ChangeNotifierProvider(
+                      create: (context) => AnalyticsController(),
                     ),
                   ],
                   child: MainApp(),
