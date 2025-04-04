@@ -70,7 +70,6 @@ class _AnalyticsPageState extends State<AnalyticsPage>
           return CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // _buildAnimatedAppBar(analytics),
               SliverToBoxAdapter(
                 child: FadeTransition(
                   opacity: _fadeAnimation,
@@ -138,83 +137,6 @@ class _AnalyticsPageState extends State<AnalyticsPage>
       ),
     );
   }
-
-  // Widget _buildAnimatedAppBar(AnalyticsController analytics) {
-  //   return SliverAppBar(
-  //     expandedHeight: 250,
-  //     floating: true,
-  //     pinned: true,
-  //     elevation: 0,
-  //     backgroundColor: Colors.yellow.shade800,
-  //     flexibleSpace: FlexibleSpaceBar(
-  //       title: Text(
-  //         'Analytics Dashboard',
-  //         style: GoogleFonts.outfit(
-  //           color: Colors.white,
-  //           fontWeight: FontWeight.bold,
-  //         ),
-  //       ),
-  //       background: Stack(
-  //         fit: StackFit.expand,
-  //         children: [
-  //           // Animated gradient background
-  //           Container(
-  //             decoration: BoxDecoration(
-  //               gradient: LinearGradient(
-  //                 begin: Alignment.topLeft,
-  //                 end: Alignment.bottomRight,
-  //                 colors: [Colors.yellow.shade800, Colors.yellow.shade600],
-  //               ),
-  //             ),
-  //           ),
-  //           // Animated circles
-  //           ...List.generate(5, (index) {
-  //             return Positioned(
-  //               right: -30 + (index * 20),
-  //               top: -20 + (index * 15),
-  //               child: TweenAnimationBuilder<double>(
-  //                 tween: Tween(begin: 0.0, end: 1.0),
-  //                 duration: Duration(milliseconds: 1000 + (index * 200)),
-  //                 builder: (context, value, child) {
-  //                   return Transform.scale(
-  //                     scale: value,
-  //                     child: Container(
-  //                       width: 100 + (index * 20),
-  //                       height: 100 + (index * 20),
-  //                       decoration: BoxDecoration(
-  //                         shape: BoxShape.circle,
-  //                         color: Colors.white.withOpacity(0.1 - (index * 0.02)),
-  //                       ),
-  //                     ),
-  //                   );
-  //                 },
-  //               ),
-  //             );
-  //           }),
-  //           // Stats summary
-  //           Positioned(
-  //             bottom: 70,
-  //             left: 16,
-  //             right: 16,
-  //             child: Column(
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 Text(
-  //                   'Business Overview',
-  //                   style: GoogleFonts.outfit(
-  //                     color: Colors.white70,
-  //                     fontSize: 16,
-  //                   ),
-  //                 ),
-  //                 const SizedBox(height: 8),
-  //               ],
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget _buildStatsCards(AnalyticsController analytics) {
     // Calculate average daily sales and products
