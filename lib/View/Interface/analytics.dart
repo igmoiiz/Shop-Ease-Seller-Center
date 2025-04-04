@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -18,7 +20,6 @@ class _AnalyticsPageState extends State<AnalyticsPage>
   late AnimationController _animationController;
   late AnimationController _cardAnimationController;
   late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
   final currencyFormat = NumberFormat.currency(
     symbol: 'Rs. ',
     decimalDigits: 0,
@@ -39,10 +40,6 @@ class _AnalyticsPageState extends State<AnalyticsPage>
     _fadeAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
-    );
-    _scaleAnimation = CurvedAnimation(
-      parent: _cardAnimationController,
-      curve: Curves.elasticOut,
     );
     _animationController.forward();
     _cardAnimationController.forward();
@@ -812,16 +809,6 @@ class _AnalyticsPageState extends State<AnalyticsPage>
                 color: Colors.black87,
               ),
             ),
-            TextButton.icon(
-              onPressed: () {
-                // TODO: Navigate to all products page
-              },
-              icon: const Icon(FontAwesomeIcons.list),
-              label: const Text('View All'),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.yellow.shade800,
-              ),
-            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -931,13 +918,6 @@ class _AnalyticsPageState extends State<AnalyticsPage>
                   ),
                 ],
               ),
-              trailing: IconButton(
-                icon: const Icon(FontAwesomeIcons.angleRight),
-                onPressed: () {
-                  // TODO: Navigate to product details
-                },
-                color: Colors.grey.shade400,
-              ),
             ),
           ),
         );
@@ -986,6 +966,23 @@ class _AnalyticsPageState extends State<AnalyticsPage>
           ),
         ),
       ],
+    );
+  }
+
+  PageRouteBuilder _elegantRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var fadeAnimation = Tween<double>(begin: 0, end: 1).animate(animation);
+        var scaleAnimation = Tween<double>(begin: 0.95, end: 1).animate(
+          CurvedAnimation(parent: animation, curve: Curves.easeOutExpo),
+        );
+        return FadeTransition(
+          opacity: fadeAnimation,
+          child: ScaleTransition(scale: scaleAnimation, child: child),
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 500),
     );
   }
 }
