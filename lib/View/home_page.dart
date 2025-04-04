@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:seller_center/Controller/Authentication/auth_services.dart';
 import 'package:seller_center/Controller/Bottom%20Nav%20Bar/bottom_nav_bar_provider.dart';
 import 'package:seller_center/View/Components/drawer_component.dart';
+import 'package:seller_center/View/Interface/about_page.dart';
 import 'package:seller_center/View/Interface/analytics.dart';
 import 'package:seller_center/View/Interface/interface.dart';
 import 'package:seller_center/View/Interface/upload_page.dart';
@@ -64,29 +65,15 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
                 DrawerComponent(
-                  title: "View your Cart",
-                  icon: Icons.shopping_cart_rounded,
-                  onTap: () {},
-                  // TODO: Add Cart Page
-                  // onTap:
-                  //     () => Navigator.of(
-                  //       context,
-                  //     ).push(_elegantRoute(CartPage())).then((value) {
-                  //       Navigator.of(context).pop();
-                  //     }),
-                  subtitle: "See what's in your wishlist",
-                ),
-                DrawerComponent(
                   title: "About Us",
                   icon: Icons.info_outline,
-                  onTap: () {},
-                  // TODO: Add About Us Page
-                  // onTap:
-                  //     () => Navigator.of(
-                  //       context,
-                  //     ).push(_elegantRoute(AboutPage())).then((value) {
-                  //       Navigator.of(context).pop();
-                  //     }),
+
+                  onTap:
+                      () => Navigator.of(
+                        context,
+                      ).push(_elegantRoute(AboutPage())).then((value) {
+                        Navigator.of(context).pop();
+                      }),
                   subtitle: "Know more about us",
                 ),
                 const Spacer(),
@@ -191,6 +178,23 @@ class HomePage extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  PageRouteBuilder _elegantRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var fadeAnimation = Tween<double>(begin: 0, end: 1).animate(animation);
+        var scaleAnimation = Tween<double>(begin: 0.95, end: 1).animate(
+          CurvedAnimation(parent: animation, curve: Curves.easeOutExpo),
+        );
+        return FadeTransition(
+          opacity: fadeAnimation,
+          child: ScaleTransition(scale: scaleAnimation, child: child),
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 500),
     );
   }
 }

@@ -31,7 +31,6 @@ class InterfaceController extends ChangeNotifier {
     "Assets/Categories/Electronic Accessories.jpeg",
     "Assets/Categories/Household Products.jpeg",
     "Assets/Categories/Furniture.jpeg",
-    "Assets/Categories/Thrift Store.jpeg",
     "Assets/Categories/Smoke.jpeg",
   ];
 
@@ -48,7 +47,6 @@ class InterfaceController extends ChangeNotifier {
     "Electronic",
     "Household",
     "Furniture",
-    "Thrift Store",
     "Smoke",
   ];
 
