@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, unrelated_type_equality_checks
+// ignore_for_file: use_build_context_synchronously, unrelated_type_equality_checks, unused_local_variable
 
 import 'dart:developer';
 import 'dart:io';
@@ -297,6 +297,126 @@ class DatabaseServices extends ChangeNotifier {
       return false;
     } finally {
       isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> markOrderAsCompleted(
+    String orderId,
+    BuildContext context,
+  ) async {
+    final snackBar = ScaffoldMessenger.of(context);
+    bool isCompleting = false;
+
+    try {
+      // Update loading state
+      isCompleting = true;
+      notifyListeners();
+
+      // Check network connectivity
+      bool isConnected = await _checkConnectivity();
+      if (!isConnected) {
+        isCompleting = false;
+        notifyListeners();
+        snackBar.showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            content: Text(
+              "No internet connection. Please check your network settings.",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: .5,
+              ),
+            ),
+          ),
+        );
+        return false;
+      }
+
+      // Get the order document
+      DocumentSnapshot orderSnapshot =
+          await _fireStore.collection('orders').doc(orderId).get();
+
+      if (!orderSnapshot.exists) {
+        isCompleting = false;
+        notifyListeners();
+        snackBar.showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            content: Text(
+              "Order not found",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: .5,
+              ),
+            ),
+          ),
+        );
+        return false;
+      }
+
+      // Get order data
+      Map<String, dynamic> orderData =
+          orderSnapshot.data() as Map<String, dynamic>;
+
+      // Add timestamp for completion
+      orderData['completedAt'] = DateTime.now();
+
+      // Start a batch operation for atomicity
+      WriteBatch batch = _fireStore.batch();
+
+      // Add to completedOrders collection
+      DocumentReference completedOrderRef = _fireStore
+          .collection('completedOrders')
+          .doc(orderId);
+      batch.set(completedOrderRef, orderData);
+
+      // Delete from orders collection
+      DocumentReference orderRef = _fireStore.collection('orders').doc(orderId);
+      batch.delete(orderRef);
+
+      // Commit the batch
+      await batch.commit();
+
+      snackBar.showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          content: Text(
+            "Order marked as completed",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              letterSpacing: .5,
+            ),
+          ),
+        ),
+      );
+
+      return true;
+    } catch (error) {
+      log("Error marking order as completed", error: error.toString());
+      snackBar.showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          content: Text(
+            "Failed to complete order: ${error.toString()}",
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              letterSpacing: .5,
+            ),
+          ),
+        ),
+      );
+      return false;
+    } finally {
+      isCompleting = false;
       notifyListeners();
     }
   }

@@ -1,3 +1,5 @@
+// ignore_for_file: library_prefixes
+
 import 'dart:math' as Math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,7 +8,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:seller_center/Controller/Database/database_services.dart';
-import 'package:seller_center/View/Components/network_image_widget.dart';
 import 'package:seller_center/View/Components/order_card.dart';
 
 class OrdersPage extends StatefulWidget {

@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
+import 'package:seller_center/Controller/Database/database_services.dart';
 import 'package:seller_center/View/Components/network_image_widget.dart';
 
 class OrderCard extends StatelessWidget {
@@ -464,46 +466,82 @@ class _OrderDetailsBottomSheetState extends State<OrderDetailsBottomSheet> {
               ),
               const SizedBox(height: 16),
               // Mark as Completed button
-              InkWell(
-                    onTap: () {},
-                    child: Container(
-                      width: double.infinity,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.yellow.shade600,
-                            Colors.yellow.shade800,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.orange.withOpacity(0.4),
-                            offset: const Offset(0, 4),
-                            blurRadius: 8,
+              Consumer<DatabaseServices>(
+                builder: (context, databaseServices, index) {
+                  return InkWell(
+                        onTap: () async {
+                          if (!_isCompleting) {
+                            setState(() {
+                              _isCompleting = true;
+                            });
+
+                            // Assuming you have the orderId available in your widget
+                            // Replace 'widget.orderId' with however you're accessing the order ID
+                            bool success = await databaseServices
+                                .markOrderAsCompleted(widget.orderId, context);
+
+                            if (success) {
+                              // Additional actions after successful completion if needed
+                              // e.g., Navigator.pop(context) or refreshing a list
+                            }
+
+                            setState(() {
+                              _isCompleting = false;
+                            });
+                          }
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.yellow.shade600,
+                                Colors.yellow.shade800,
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.orange.withOpacity(0.4),
+                                offset: const Offset(0, 4),
+                                blurRadius: 8,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: Center(
-                        child:
-                            _isCompleting
-                                ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'Processing...',
+                          child: Center(
+                            child:
+                                _isCompleting
+                                    ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Text(
+                                          'Processing...',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            fontFamily:
+                                                GoogleFonts.urbanist()
+                                                    .fontFamily,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                    : Text(
+                                      'Mark as Completed',
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -512,42 +550,33 @@ class _OrderDetailsBottomSheetState extends State<OrderDetailsBottomSheet> {
                                             GoogleFonts.urbanist().fontFamily,
                                       ),
                                     ),
-                                  ],
-                                )
-                                : Text(
-                                  'Mark as Completed',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    fontFamily:
-                                        GoogleFonts.urbanist().fontFamily,
-                                  ),
-                                ),
-                      ),
-                    ),
-                  )
-                  .animate(
-                    onPlay: (controller) => controller.repeat(reverse: true),
-                  )
-                  .shimmer(
-                    duration: const Duration(seconds: 2),
-                    color: Colors.white.withOpacity(0.2),
-                  )
-                  .animate()
-                  .scale(
-                    begin: const Offset(1, 1),
-                    end: const Offset(1.02, 1.02),
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  )
-                  .then()
-                  .scale(
-                    begin: const Offset(1.02, 1.02),
-                    end: const Offset(1, 1),
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  ),
+                          ),
+                        ),
+                      )
+                      .animate(
+                        onPlay:
+                            (controller) => controller.repeat(reverse: true),
+                      )
+                      .shimmer(
+                        duration: const Duration(seconds: 2),
+                        color: Colors.white.withOpacity(0.2),
+                      )
+                      .animate()
+                      .scale(
+                        begin: const Offset(1, 1),
+                        end: const Offset(1.02, 1.02),
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      )
+                      .then()
+                      .scale(
+                        begin: const Offset(1.02, 1.02),
+                        end: const Offset(1, 1),
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                },
+              ),
             ],
           ),
         ).animate().fadeIn(
