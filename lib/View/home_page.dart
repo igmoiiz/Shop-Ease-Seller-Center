@@ -19,8 +19,6 @@ class HomePage extends StatelessWidget {
   final AuthServices authServices = AuthServices();
   @override
   Widget build(BuildContext context) {
-    //Instance for AuthProvider
-    // final authProvider = AuthProvider();
     //List of Pages
     final List<Widget> pages = [
       InterfacePage(),
