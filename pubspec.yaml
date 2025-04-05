@@ -25,6 +25,8 @@ dependencies:
   connectivity_plus: ^6.1.3
   url_launcher: ^6.3.1
   fl_chart: ^0.66.2
+  cached_network_image: ^3.4.1
+  flutter_animate: ^4.5.2
 
 dev_dependencies:
   flutter_test:

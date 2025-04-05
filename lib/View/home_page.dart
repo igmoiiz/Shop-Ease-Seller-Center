@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +14,7 @@ import 'package:seller_center/View/Components/drawer_component.dart';
 import 'package:seller_center/View/Interface/about_page.dart';
 import 'package:seller_center/View/Interface/analytics.dart';
 import 'package:seller_center/View/Interface/interface.dart';
+import 'package:seller_center/View/Interface/Orders/orders_page.dart';
 import 'package:seller_center/View/Interface/upload_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -23,8 +25,12 @@ class HomePage extends StatelessWidget {
     //Instance for AuthProvider
     // final authProvider = AuthProvider();
     //List of Pages
-    final List<Widget> pages = [InterfacePage(), UploadPage(), AnalyticsPage()];
-    log('Build');
+    final List<Widget> pages = [
+      InterfacePage(),
+      UploadPage(),
+      OrdersPage(),
+      AnalyticsPage(),
+    ];
     return Consumer<BottomNavProvider>(
       builder: (context, bottomNav, child) {
         final size = MediaQuery.sizeOf(context);
@@ -173,6 +179,7 @@ class HomePage extends StatelessWidget {
             items: [
               Icon(Iconsax.home, color: Colors.white),
               Icon(Iconsax.add_circle, color: Colors.white),
+              Icon(Icons.inventory_rounded, color: Colors.white),
               Icon(Iconsax.graph, color: Colors.white),
             ],
           ),
