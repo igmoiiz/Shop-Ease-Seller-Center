@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class LoadingWidget extends StatelessWidget {
   final double size;
 
-  const LoadingWidget({Key? key, this.size = 36.0}) : super(key: key);
+  const LoadingWidget({super.key, this.size = 36.0});
 
   @override
   Widget build(BuildContext context) {
@@ -13,14 +13,13 @@ class LoadingWidget extends StatelessWidget {
       child: SizedBox(
         width: size,
         height: size,
-        child: Platform.isIOS
-            ? const CupertinoActivityIndicator(
-                color: Colors.blue,
-              )
-            : const CircularProgressIndicator(
-                strokeWidth: 2.0,
-                color: Colors.blue,
-              ),
+        child:
+            Platform.isIOS
+                ? const CupertinoActivityIndicator(color: Colors.blue)
+                : const CircularProgressIndicator(
+                  strokeWidth: 2.0,
+                  color: Colors.blue,
+                ),
       ),
     );
   }
