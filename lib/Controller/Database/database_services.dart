@@ -235,6 +235,7 @@ class DatabaseServices extends ChangeNotifier {
           "category": category,
           "productId": productId,
           "createdAt": DateTime.now(),
+          "timeStamp": DateTime.timestamp(),
         });
 
         // Clear form data after successful upload
