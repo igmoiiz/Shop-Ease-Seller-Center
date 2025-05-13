@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:seller_center/Controller/Analytics/analytics_controller.dart';
 import 'package:seller_center/Controller/Bottom%20Nav%20Bar/bottom_nav_bar_provider.dart';
+import 'package:seller_center/Controller/Cart%20Services/cart_services.dart';
 import 'package:seller_center/Controller/Database/database_services.dart';
 import 'package:seller_center/Controller/Interface/interface_controller.dart';
 import 'package:seller_center/View/home_page.dart';
@@ -36,6 +37,9 @@ Future<void> main() async {
                     ),
                     ChangeNotifierProvider(
                       create: (context) => AnalyticsController(),
+                    ),
+                    ChangeNotifierProvider(
+                      create: (context) => CartServices(),
                     ),
                   ],
                   child: MainApp(),

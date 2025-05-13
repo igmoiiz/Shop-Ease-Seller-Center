@@ -9,6 +9,7 @@ import 'package:seller_center/Controller/Database/database_services.dart';
 import 'package:seller_center/Controller/Interface/interface_controller.dart';
 import 'package:seller_center/Controller/input_controllers.dart';
 import 'package:seller_center/Model/featured_product_model.dart';
+import 'package:seller_center/View/Interface/Featured%20Products/featured_details.dart';
 
 class FeaturedProducts extends StatefulWidget {
   final String category;
@@ -280,25 +281,24 @@ class _FeaturedProductsState extends State<FeaturedProducts> {
 
     // Use Consumer only for the part that needs to rebuild
     return GestureDetector(
-      onTap: () {},
-      //  TODO Implement Featured Product Detail Page
-      // onTap:
-      //     () => Navigator.of(context).push(
-      //       PageRouteBuilder(
-      //         pageBuilder:
-      //             (context, animation, secondaryAnimation) =>
-      //                 FeaturedProductDetails(product: product),
-      //         transitionDuration: const Duration(milliseconds: 500),
-      //         transitionsBuilder: (
-      //           context,
-      //           animation,
-      //           secondaryAnimation,
-      //           child,
-      //         ) {
-      //           return FadeTransition(opacity: animation, child: child);
-      //         },
-      //       ),
-      //     ),
+      
+      onTap:
+          () => Navigator.of(context).push(
+            PageRouteBuilder(
+              pageBuilder:
+                  (context, animation, secondaryAnimation) =>
+                      FeaturedProductDetails(product: product),
+              transitionDuration: const Duration(milliseconds: 500),
+              transitionsBuilder: (
+                context,
+                animation,
+                secondaryAnimation,
+                child,
+              ) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+            ),
+          ),
       child: Card(
         elevation: 2,
         shadowColor: Colors.black26,
