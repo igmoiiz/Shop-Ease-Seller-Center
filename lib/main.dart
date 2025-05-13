@@ -56,6 +56,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: HomePage());
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "SellerEase",
+      home: HomePage(),
+    );
   }
 }
