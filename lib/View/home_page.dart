@@ -11,6 +11,7 @@ import 'package:seller_center/View/Components/drawer_component.dart';
 import 'package:seller_center/View/Interface/about_page.dart';
 import 'package:seller_center/View/Interface/analytics.dart';
 import 'package:seller_center/View/Interface/interface.dart';
+import 'package:seller_center/View/Interface/Orders/completed_orders_page.dart';
 import 'package:seller_center/View/Interface/Orders/orders_page.dart';
 import 'package:seller_center/View/Interface/upload_page.dart';
 
@@ -68,7 +69,6 @@ class HomePage extends StatelessWidget {
                 DrawerComponent(
                   title: "About Us",
                   icon: Icons.info_outline,
-
                   onTap:
                       () => Navigator.of(
                         context,
@@ -76,6 +76,17 @@ class HomePage extends StatelessWidget {
                         Navigator.of(context).pop();
                       }),
                   subtitle: "Know more about us",
+                ),
+                DrawerComponent(
+                  title: "Completed Orders",
+                  icon: Icons.check_circle_outline,
+                  onTap:
+                      () => Navigator.of(context)
+                          .push(_elegantRoute(CompletedOrdersPage()))
+                          .then((value) {
+                            Navigator.of(context).pop();
+                          }),
+                  subtitle: "View all completed orders",
                 ),
                 const Spacer(),
                 const Divider(),
